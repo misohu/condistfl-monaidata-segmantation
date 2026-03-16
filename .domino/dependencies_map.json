@@ -1,0 +1,27 @@
+{
+    "group0": {
+        "dependency": {
+            "dockerfile": "Dockerfile_condistfl_data",
+            "requirements_file": null
+        },
+        "pieces": [
+            "CondistFLVisualizationPiece",
+            "CondistFLDataLoaderPiece",
+            "CondistFLSplitDataPiece"
+        ],
+        "secrets": [],
+        "source_image": "ghcr.io/misohu/condistfl-monaidata-segmantation:v1.0.0-group0"
+    },
+    "group1": {
+        "dependency": {
+            "dockerfile": "Dockerfile_condistfl_trainer",
+            "requirements_file": null
+        },
+        "pieces": [
+            "CondistFLInferencePiece",
+            "CondistFLTrainerPiece"
+        ],
+        "secrets": [],
+        "source_image": "ghcr.io/misohu/condistfl-monaidata-segmantation:v1.0.0-group1"
+    }
+}

@@ -1,0 +1,101 @@
+{
+  "name": "CondistFLVisualizationPiece",
+  "dependency": {
+    "dockerfile": "Dockerfile_condistfl_data"
+  },
+  "tags": [
+    "Medical Imaging",
+    "Federated Learning",
+    "Visualization",
+    "Charts"
+  ],
+  "style": {
+    "node_label": "CondistFL Viz",
+    "node_type": "default",
+    "node_style": {
+      "backgroundColor": "#50C878"
+    },
+    "useIcon": true,
+    "icon_class_name": "fas fa-chart-bar"
+  },
+  "description": "Generates visualisation charts from CondistFL federated-learning training results: loss curves, Dice convergence, per-organ bars, and cross-site validation heatmap.",
+  "input_schema": {
+    "title": "InputModel",
+    "type": "object",
+    "properties": {
+      "training_complete": {
+        "title": "Training Complete",
+        "description": "Whether training completed successfully",
+        "type": "boolean",
+        "from_upstream": "always"
+      },
+      "num_rounds_completed": {
+        "title": "Num Rounds Completed",
+        "description": "Number of federated learning rounds completed",
+        "type": "integer",
+        "from_upstream": "always"
+      },
+      "validation_metrics": {
+        "title": "Validation Metrics",
+        "description": "JSON string of validation metrics {client_dice: float}",
+        "type": "string",
+        "default": "{}",
+        "from_upstream": "always"
+      },
+      "client_metrics": {
+        "title": "Client Metrics",
+        "description": "JSON string of per-client TensorBoard scalars",
+        "type": "string",
+        "default": "{}",
+        "from_upstream": "always"
+      },
+      "server_metrics": {
+        "title": "Server Metrics",
+        "description": "JSON string of server TensorBoard scalars",
+        "type": "string",
+        "default": "{}",
+        "from_upstream": "always"
+      },
+      "cross_val_data": {
+        "title": "Cross Val Data",
+        "description": "JSON string of cross-site validation results, or empty string",
+        "type": "string",
+        "default": "",
+        "from_upstream": "always"
+      }
+    },
+    "required": [
+      "training_complete",
+      "num_rounds_completed"
+    ],
+    "description": "CondistFL Visualization input parameters"
+  },
+  "output_schema": {
+    "title": "OutputModel",
+    "type": "object",
+    "properties": {
+      "charts_dir": {
+        "title": "Charts Dir",
+        "description": "Directory containing saved chart PNG files",
+        "type": "string"
+      },
+      "summary": {
+        "title": "Summary",
+        "description": "Text summary of training results",
+        "type": "string"
+      },
+      "message": {
+        "title": "Message",
+        "description": "Status message",
+        "type": "string"
+      }
+    },
+    "required": [
+      "charts_dir",
+      "summary",
+      "message"
+    ],
+    "description": "CondistFL Visualization output results"
+  },
+  "source_url": "https://github.com/Mikei-Stano/condistfl-trainer/tree/main/pieces/CondistFLVisualizationPiece"
+}
