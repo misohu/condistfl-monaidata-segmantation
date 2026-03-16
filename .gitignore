@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.env
+
+# Ignore medical imaging data directory (data comes from Onedata at runtime)
+dependencies/condist-fl-trainer/data_sampled/
