@@ -1,0 +1,26 @@
+{
+  "name": "CondistFLSplitDataPiece",
+  "dependency": {
+    "dockerfile": "Dockerfile_condistfl_data"
+  },
+  "tags": [
+    "Data Processing",
+    "Cross Validation",
+    "Medical Imaging"
+  ],
+  "style": {
+    "node_label": "CondistFL Split Data",
+    "node_type": "default",
+    "node_style": {
+      "backgroundColor": "#50C878"
+    },
+    "useIcon": true,
+    "icon_class_name": "fas fa-random"
+  },
+  "container_resources": {
+    "cpu": 100,
+    "memory": "128Mi"
+  },
+  "description": "Splits multi-organ segmentation datasets into k-fold cross-validation sets for CondistFL federated training. Creates fold-specific datalist.json files with train/validation partitions.",
+  "source_url": "https://github.com/Mikei-Stano/condistfl-trainer/tree/main/pieces/CondistFLSplitDataPiece"
+}

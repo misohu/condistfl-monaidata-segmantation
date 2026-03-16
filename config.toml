@@ -1,0 +1,5 @@
+[repository]
+REGISTRY_NAME = "misohu"
+REPOSITORY_NAME = "condistfl-monaidata-segmantation"
+REPOSITORY_LABEL = "CondistFL MONAI data image segmentation"
+VERSION = "v1.0.0"

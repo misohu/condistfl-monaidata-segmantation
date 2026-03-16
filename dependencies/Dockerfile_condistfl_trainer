@@ -1,0 +1,36 @@
+FROM nvcr.io/nvidia/pytorch:24.12-py3
+
+# Install Python dependencies including domino
+RUN pip install "pip==25.3" && \
+    pip install "nvflare==2.6.2" \
+        "monai==1.5.1" \
+        "nibabel==5.3.2" \
+        "tqdm==4.67.1" \
+        "tensorboard==2.16.2" \
+        "prettytable==3.17.0" \
+        "ruamel.yaml==0.18.16" \
+        "domino-py[cli]>=0.9.0"
+
+# Set working directory
+WORKDIR /app
+
+# Copy the condist-fl source code
+COPY dependencies/condist-fl-trainer/src /app/src
+COPY dependencies/condist-fl-trainer/run_validate.py /app/run_validate.py
+COPY dependencies/condist-fl-trainer/convert_to_torchscript.py /app/convert_to_torchscript.py
+
+# Copy the jobs configuration
+COPY dependencies/condist-fl-trainer/jobs /app/jobs
+
+# Create workspace directory
+RUN mkdir -p /app/workspace
+
+# Copy Domino metadata (required for domino CLI)
+COPY .domino /app/domino/pieces_repository/.domino
+COPY pieces /app/domino/pieces_repository/pieces
+
+# Set Python path to include src directory
+ENV PYTHONPATH="/app/src:${PYTHONPATH}"
+
+# Default command (will be overridden by Domino)
+CMD ["python"]

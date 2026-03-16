@@ -1,0 +1,10 @@
+FROM ghcr.io/tauffer-consulting/domino-base-piece:latest
+
+RUN pip install --no-cache-dir "domino-py[cli]>=0.9.0" "matplotlib>=3.7" "Pillow>=9.0" "requests>=2.28"
+
+WORKDIR /app
+
+# Copy Domino metadata
+COPY config.toml domino/pieces_repository/
+COPY pieces domino/pieces_repository/pieces
+COPY .domino domino/pieces_repository/.domino

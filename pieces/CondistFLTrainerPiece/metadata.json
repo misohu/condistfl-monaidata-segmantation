@@ -1,0 +1,177 @@
+{
+  "name": "CondistFLTrainerPiece",
+  "dependency": {
+    "dockerfile": "Dockerfile_condistfl_trainer"
+  },
+  "tags": [
+    "Medical Imaging",
+    "Federated Learning",
+    "Training",
+    "Deep Learning",
+    "CT Scan"
+  ],
+  "style": {
+    "node_label": "CondistFL Trainer",
+    "node_type": "default",
+    "node_style": {
+      "backgroundColor": "#E24A90"
+    },
+    "useIcon": true,
+    "icon_class_name": "fas fa-graduation-cap"
+  },
+  "description": "Trains a federated learning model for multi-organ and tumor segmentation using CondistFL framework. Coordinates training across multiple clients (kidney, liver, pancreas, spleen) using NVFlare.",
+  "input_schema": {
+    "title": "InputModel",
+    "type": "object",
+    "properties": {
+      "num_rounds": {
+        "title": "Num Rounds",
+        "description": "Number of federated learning rounds",
+        "default": 3,
+        "type": "integer",
+        "from_upstream": "never"
+      },
+      "steps_per_round": {
+        "title": "Steps Per Round",
+        "description": "Training steps per round",
+        "default": 1000,
+        "type": "integer",
+        "from_upstream": "never"
+      },
+      "clients": {
+        "title": "Clients",
+        "description": "Comma-separated list of client names",
+        "default": "liver,spleen,pancreas,kidney",
+        "type": "string",
+        "from_upstream": "never"
+      },
+      "gpus": {
+        "title": "Gpus",
+        "description": "Comma-separated GPU IDs to use",
+        "default": "0,1,2,3",
+        "type": "string",
+        "from_upstream": "never"
+      },
+      "data_root_kidney": {
+        "title": "Data Root Kidney",
+        "description": "Path to kidney dataset root",
+        "default": "/app/data_sampled/KiTS19",
+        "type": "string",
+        "from_upstream": "optional"
+      },
+      "data_root_liver": {
+        "title": "Data Root Liver",
+        "description": "Path to liver dataset root",
+        "default": "/app/data_sampled/Liver",
+        "type": "string",
+        "from_upstream": "optional"
+      },
+      "data_root_pancreas": {
+        "title": "Data Root Pancreas",
+        "description": "Path to pancreas dataset root",
+        "default": "/app/data_sampled/Pancreas",
+        "type": "string",
+        "from_upstream": "optional"
+      },
+      "data_root_spleen": {
+        "title": "Data Root Spleen",
+        "description": "Path to spleen dataset root",
+        "default": "/app/data_sampled/Spleen",
+        "type": "string",
+        "from_upstream": "optional"
+      },
+      "workspace_dir": {
+        "title": "Workspace Dir",
+        "description": "Directory to save training workspace",
+        "default": "/app/workspace",
+        "type": "string",
+        "from_upstream": "never"
+      }
+    },
+    "description": "CondistFL Trainer input parameters"
+  },
+  "output_schema": {
+    "title": "OutputModel",
+    "type": "object",
+    "properties": {
+      "workspace_dir": {
+        "title": "Workspace Dir",
+        "description": "Directory containing training results and models",
+        "type": "string"
+      },
+      "best_global_model_path": {
+        "title": "Best Global Model Path",
+        "description": "Path to the best global model checkpoint",
+        "type": "string"
+      },
+      "global_model_path": {
+        "title": "Global Model Path",
+        "description": "Path to the final global model checkpoint",
+        "type": "string"
+      },
+      "best_local_models": {
+        "title": "Best Local Models",
+        "description": "Paths to best local models for each client",
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "cross_site_validation_results": {
+        "title": "Cross Site Validation Results",
+        "description": "Path to cross-site validation results YAML file",
+        "type": "string"
+      },
+      "training_complete": {
+        "title": "Training Complete",
+        "description": "Whether training completed successfully",
+        "type": "boolean"
+      },
+      "num_rounds_completed": {
+        "title": "Num Rounds Completed",
+        "description": "Number of rounds completed",
+        "type": "integer"
+      },
+      "validation_metrics": {
+        "title": "Validation Metrics",
+        "description": "JSON string of validation metrics dict {client_dice: float}",
+        "type": "string",
+        "default": "{}"
+      },
+      "client_metrics": {
+        "title": "Client Metrics",
+        "description": "JSON string of per-client TensorBoard scalars",
+        "type": "string",
+        "default": "{}"
+      },
+      "server_metrics": {
+        "title": "Server Metrics",
+        "description": "JSON string of server TensorBoard scalars",
+        "type": "string",
+        "default": "{}"
+      },
+      "cross_val_data": {
+        "title": "Cross Val Data",
+        "description": "JSON string of cross-site validation results, or empty string",
+        "type": "string",
+        "default": ""
+      },
+      "message": {
+        "title": "Message",
+        "description": "Status message",
+        "type": "string"
+      }
+    },
+    "required": [
+      "workspace_dir",
+      "best_global_model_path",
+      "global_model_path",
+      "cross_site_validation_results",
+      "training_complete",
+      "num_rounds_completed",
+      "message"
+    ],
+    "description": "CondistFL Trainer output results"
+  },
+  "source_url": "https://github.com/Mikei-Stano/condistfl-trainer/tree/main/pieces/CondistFLTrainerPiece"
+}

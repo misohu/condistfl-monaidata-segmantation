@@ -1,0 +1,94 @@
+{
+  "name": "CondistFLInferencePiece",
+  "dependency": {
+    "dockerfile": "Dockerfile_condistfl_trainer"
+  },
+  "tags": [
+    "Medical Imaging",
+    "Federated Learning",
+    "Inference",
+    "Segmentation",
+    "Deep Learning",
+    "CT Scan"
+  ],
+  "style": {
+    "node_label": "CondistFL Inference",
+    "node_type": "default",
+    "node_style": {
+      "backgroundColor": "#9B59B6"
+    },
+    "useIcon": true,
+    "icon_class_name": "fas fa-brain"
+  },
+  "description": "Runs inference on a NIfTI CT image using a trained CondistFL global model. Produces a multi-organ segmentation mask (8 classes: background, liver, liver_tumor, spleen, pancreas, pancreas_tumor, kidney, kidney_tumor) and a slice visualisation.",
+  "input_schema": {
+    "title": "InputModel",
+    "type": "object",
+    "properties": {
+      "best_global_model_path": {
+        "title": "Best Global Model Path",
+        "description": "Path to the best global model checkpoint (.pt file) from training",
+        "type": "string",
+        "from_upstream": "always"
+      },
+      "image_path": {
+        "title": "Image Path",
+        "description": "Path to a NIfTI image file (.nii or .nii.gz) for inference",
+        "type": "string",
+        "from_upstream": "never"
+      },
+      "use_gpu": {
+        "title": "Use GPU",
+        "description": "Whether to use GPU for inference (falls back to CPU if unavailable)",
+        "default": true,
+        "type": "boolean",
+        "from_upstream": "never"
+      },
+      "output_dir": {
+        "title": "Output Dir",
+        "description": "Directory to save inference outputs (mask and visualization)",
+        "default": "/tmp/condistfl_inference",
+        "type": "string",
+        "from_upstream": "never"
+      }
+    },
+    "required": [
+      "best_global_model_path",
+      "image_path"
+    ],
+    "description": "CondistFL Inference input parameters"
+  },
+  "output_schema": {
+    "title": "OutputModel",
+    "type": "object",
+    "properties": {
+      "segmentation_mask_path": {
+        "title": "Segmentation Mask Path",
+        "description": "Path to the predicted segmentation mask NIfTI file",
+        "type": "string"
+      },
+      "visualization_path": {
+        "title": "Visualization Path",
+        "description": "Path to the slice visualization PNG file",
+        "type": "string"
+      },
+      "class_names": {
+        "title": "Class Names",
+        "description": "JSON string mapping class index to organ name",
+        "type": "string"
+      },
+      "message": {
+        "title": "Message",
+        "description": "Status message with inference summary",
+        "type": "string"
+      }
+    },
+    "required": [
+      "segmentation_mask_path",
+      "visualization_path",
+      "class_names",
+      "message"
+    ],
+    "description": "CondistFL Inference output results"
+  }
+}

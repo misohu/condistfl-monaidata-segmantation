@@ -1,0 +1,646 @@
+{
+    "CondistFLVisualizationPiece": {
+        "name": "CondistFLVisualizationPiece",
+        "dependency": {
+            "dockerfile": "Dockerfile_condistfl_data",
+            "requirements_file": null
+        },
+        "tags": [
+            "Medical Imaging",
+            "Federated Learning",
+            "Visualization",
+            "Charts"
+        ],
+        "style": {
+            "node_label": "CondistFL Viz",
+            "node_type": "default",
+            "node_style": {
+                "backgroundColor": "#50C878"
+            },
+            "useIcon": true,
+            "icon_class_name": "fas fa-chart-bar",
+            "iconStyle": {
+                "cursor": "pointer"
+            }
+        },
+        "description": "Generates visualisation charts from CondistFL federated-learning training results: loss curves, Dice convergence, per-organ bars, and cross-site validation heatmap.",
+        "input_schema": {
+            "description": "CondistFL Visualization Input Model",
+            "properties": {
+                "training_complete": {
+                    "description": "Whether training completed successfully",
+                    "from_upstream": "always",
+                    "title": "Training Complete",
+                    "type": "boolean"
+                },
+                "num_rounds_completed": {
+                    "description": "Number of federated learning rounds completed",
+                    "from_upstream": "always",
+                    "title": "Num Rounds Completed",
+                    "type": "integer"
+                },
+                "validation_metrics": {
+                    "default": "{}",
+                    "description": "JSON string of validation metrics {client_dice: float}",
+                    "from_upstream": "always",
+                    "title": "Validation Metrics",
+                    "type": "string"
+                },
+                "client_metrics": {
+                    "default": "{}",
+                    "description": "JSON string of per-client TensorBoard scalars",
+                    "from_upstream": "always",
+                    "title": "Client Metrics",
+                    "type": "string"
+                },
+                "server_metrics": {
+                    "default": "{}",
+                    "description": "JSON string of server TensorBoard scalars",
+                    "from_upstream": "always",
+                    "title": "Server Metrics",
+                    "type": "string"
+                },
+                "cross_val_data": {
+                    "default": "",
+                    "description": "JSON string of cross-site validation results, or empty string",
+                    "from_upstream": "always",
+                    "title": "Cross Val Data",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "training_complete",
+                "num_rounds_completed"
+            ],
+            "title": "InputModel",
+            "type": "object"
+        },
+        "output_schema": {
+            "description": "CondistFL Visualization Output Model",
+            "properties": {
+                "charts_dir": {
+                    "description": "Directory containing saved chart PNG files",
+                    "title": "Charts Dir",
+                    "type": "string"
+                },
+                "summary": {
+                    "description": "Text summary of training results",
+                    "title": "Summary",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Status message",
+                    "title": "Message",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "charts_dir",
+                "summary",
+                "message"
+            ],
+            "title": "OutputModel",
+            "type": "object"
+        },
+        "source_url": "https://github.com/misohu/condistfl-monaidata-segmantation/tree/main/pieces/CondistFLVisualizationPiece",
+        "secrets_schema": null
+    },
+    "CondistFLInferencePiece": {
+        "name": "CondistFLInferencePiece",
+        "dependency": {
+            "dockerfile": "Dockerfile_condistfl_trainer",
+            "requirements_file": null
+        },
+        "tags": [
+            "Medical Imaging",
+            "Federated Learning",
+            "Inference",
+            "Segmentation",
+            "Deep Learning",
+            "CT Scan"
+        ],
+        "style": {
+            "node_label": "CondistFL Inference",
+            "node_type": "default",
+            "node_style": {
+                "backgroundColor": "#9B59B6"
+            },
+            "useIcon": true,
+            "icon_class_name": "fas fa-brain",
+            "iconStyle": {
+                "cursor": "pointer"
+            }
+        },
+        "description": "Runs inference on a NIfTI CT image using a trained CondistFL global model. Produces a multi-organ segmentation mask (8 classes: background, liver, liver_tumor, spleen, pancreas, pancreas_tumor, kidney, kidney_tumor) and a slice visualisation.",
+        "input_schema": {
+            "description": "CondistFL Inference Input Model",
+            "properties": {
+                "best_global_model_path": {
+                    "description": "Path to the best global model checkpoint (.pt file) from training",
+                    "from_upstream": "always",
+                    "title": "Best Global Model Path",
+                    "type": "string"
+                },
+                "image_path": {
+                    "description": "Path to a NIfTI image file (.nii or .nii.gz) for inference",
+                    "from_upstream": "never",
+                    "title": "Image Path",
+                    "type": "string"
+                },
+                "use_gpu": {
+                    "default": true,
+                    "description": "Whether to use GPU for inference (falls back to CPU if unavailable)",
+                    "from_upstream": "never",
+                    "title": "Use Gpu",
+                    "type": "boolean"
+                },
+                "output_dir": {
+                    "default": "/tmp/condistfl_inference",
+                    "description": "Directory to save inference outputs (mask and visualization)",
+                    "from_upstream": "never",
+                    "title": "Output Dir",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "best_global_model_path",
+                "image_path"
+            ],
+            "title": "InputModel",
+            "type": "object"
+        },
+        "output_schema": {
+            "description": "CondistFL Inference Output Model",
+            "properties": {
+                "segmentation_mask_path": {
+                    "description": "Path to the predicted segmentation mask NIfTI file",
+                    "title": "Segmentation Mask Path",
+                    "type": "string"
+                },
+                "visualization_path": {
+                    "description": "Path to the slice visualization PNG file",
+                    "title": "Visualization Path",
+                    "type": "string"
+                },
+                "class_names": {
+                    "description": "JSON string mapping class index to organ name",
+                    "title": "Class Names",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Status message with inference summary",
+                    "title": "Message",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "segmentation_mask_path",
+                "visualization_path",
+                "class_names",
+                "message"
+            ],
+            "title": "OutputModel",
+            "type": "object"
+        },
+        "secrets_schema": null,
+        "source_url": "https://github.com/misohu/condistfl-monaidata-segmantation/tree/main/pieces/CondistFLInferencePiece"
+    },
+    "CondistFLTrainerPiece": {
+        "name": "CondistFLTrainerPiece",
+        "dependency": {
+            "dockerfile": "Dockerfile_condistfl_trainer",
+            "requirements_file": null
+        },
+        "tags": [
+            "Medical Imaging",
+            "Federated Learning",
+            "Training",
+            "Deep Learning",
+            "CT Scan"
+        ],
+        "style": {
+            "node_label": "CondistFL Trainer",
+            "node_type": "default",
+            "node_style": {
+                "backgroundColor": "#E24A90"
+            },
+            "useIcon": true,
+            "icon_class_name": "fas fa-graduation-cap",
+            "iconStyle": {
+                "cursor": "pointer"
+            }
+        },
+        "description": "Trains a federated learning model for multi-organ and tumor segmentation using CondistFL framework. Coordinates training across multiple clients (kidney, liver, pancreas, spleen) using NVFlare.",
+        "input_schema": {
+            "description": "CondistFL Training Input Model",
+            "properties": {
+                "num_rounds": {
+                    "default": 3,
+                    "description": "Number of federated learning rounds",
+                    "from_upstream": "never",
+                    "title": "Num Rounds",
+                    "type": "integer"
+                },
+                "steps_per_round": {
+                    "default": 1000,
+                    "description": "Training steps per round",
+                    "from_upstream": "never",
+                    "title": "Steps Per Round",
+                    "type": "integer"
+                },
+                "clients": {
+                    "default": "liver,spleen,pancreas,kidney",
+                    "description": "Comma-separated list of client names",
+                    "from_upstream": "never",
+                    "title": "Clients",
+                    "type": "string"
+                },
+                "gpus": {
+                    "default": "0,1,2,3",
+                    "description": "Comma-separated GPU IDs to use",
+                    "from_upstream": "never",
+                    "title": "Gpus",
+                    "type": "string"
+                },
+                "data_root_kidney": {
+                    "description": "Path to kidney dataset root (from SplitData piece)",
+                    "from_upstream": "always",
+                    "title": "Data Root Kidney",
+                    "type": "string"
+                },
+                "data_root_liver": {
+                    "description": "Path to liver dataset root (from SplitData piece)",
+                    "from_upstream": "always",
+                    "title": "Data Root Liver",
+                    "type": "string"
+                },
+                "data_root_pancreas": {
+                    "description": "Path to pancreas dataset root (from SplitData piece)",
+                    "from_upstream": "always",
+                    "title": "Data Root Pancreas",
+                    "type": "string"
+                },
+                "data_root_spleen": {
+                    "description": "Path to spleen dataset root (from SplitData piece)",
+                    "from_upstream": "always",
+                    "title": "Data Root Spleen",
+                    "type": "string"
+                },
+                "workspace_dir": {
+                    "default": "/app/workspace",
+                    "description": "Directory to save training workspace",
+                    "from_upstream": "never",
+                    "title": "Workspace Dir",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "data_root_kidney",
+                "data_root_liver",
+                "data_root_pancreas",
+                "data_root_spleen"
+            ],
+            "title": "InputModel",
+            "type": "object"
+        },
+        "output_schema": {
+            "description": "CondistFL Training Output Model",
+            "properties": {
+                "workspace_dir": {
+                    "description": "Directory containing training results and models",
+                    "title": "Workspace Dir",
+                    "type": "string"
+                },
+                "best_global_model_path": {
+                    "description": "Path to the best global model checkpoint",
+                    "title": "Best Global Model Path",
+                    "type": "string"
+                },
+                "global_model_path": {
+                    "description": "Path to the final global model checkpoint",
+                    "title": "Global Model Path",
+                    "type": "string"
+                },
+                "best_local_models": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Paths to best local models for each client",
+                    "title": "Best Local Models",
+                    "type": "object"
+                },
+                "cross_site_validation_results": {
+                    "description": "Path to cross-site validation results YAML file",
+                    "title": "Cross Site Validation Results",
+                    "type": "string"
+                },
+                "training_complete": {
+                    "description": "Whether training completed successfully",
+                    "title": "Training Complete",
+                    "type": "boolean"
+                },
+                "num_rounds_completed": {
+                    "description": "Number of rounds completed",
+                    "title": "Num Rounds Completed",
+                    "type": "integer"
+                },
+                "validation_metrics": {
+                    "default": "{}",
+                    "description": "JSON string of validation metrics dict {client_dice: float}",
+                    "title": "Validation Metrics",
+                    "type": "string"
+                },
+                "client_metrics": {
+                    "default": "{}",
+                    "description": "JSON string of per-client TensorBoard scalars {client: {tag: [{step, value}]}}",
+                    "title": "Client Metrics",
+                    "type": "string"
+                },
+                "server_metrics": {
+                    "default": "{}",
+                    "description": "JSON string of server TensorBoard scalars {tag: [{step, value}]}",
+                    "title": "Server Metrics",
+                    "type": "string"
+                },
+                "cross_val_data": {
+                    "default": "",
+                    "description": "JSON string of cross-site validation results list, or empty string if not available",
+                    "title": "Cross Val Data",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Status message",
+                    "title": "Message",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "workspace_dir",
+                "best_global_model_path",
+                "global_model_path",
+                "cross_site_validation_results",
+                "training_complete",
+                "num_rounds_completed",
+                "message"
+            ],
+            "title": "OutputModel",
+            "type": "object"
+        },
+        "source_url": "https://github.com/misohu/condistfl-monaidata-segmantation/tree/main/pieces/CondistFLTrainerPiece",
+        "secrets_schema": null
+    },
+    "CondistFLDataLoaderPiece": {
+        "name": "CondistFLDataLoaderPiece",
+        "dependency": {
+            "dockerfile": "Dockerfile_condistfl_data",
+            "requirements_file": null
+        },
+        "tags": [
+            "Medical Imaging",
+            "Data Loading",
+            "CT Scan"
+        ],
+        "style": {
+            "node_label": "CondistFL Data Loader",
+            "node_type": "default",
+            "node_style": {
+                "backgroundColor": "#4A90E2"
+            },
+            "useIcon": true,
+            "icon_class_name": "fas fa-database",
+            "iconStyle": {
+                "cursor": "pointer"
+            }
+        },
+        "container_resources": {
+            "cpu": 500,
+            "memory": "2Gi"
+        },
+        "description": "Downloads multi-organ segmentation data (KiTS19, Liver, Pancreas, Spleen) from a Onedata provider, extracts and verifies it, then passes dataset paths to downstream pieces.",
+        "source_url": "https://github.com/misohu/condistfl-monaidata-segmantation/tree/main/pieces/CondistFLDataLoaderPiece",
+        "input_schema": {
+            "description": "CondistFL Data Loader Input Model\n\nDownloads multi-organ segmentation data from a Onedata provider and\nmakes it available on shared storage for downstream pieces.",
+            "properties": {
+                "onedata_provider_url": {
+                    "default": "https://cloud-sk.data.spice-platform.eu",
+                    "description": "URL of the Onedata provider (Oneprovider REST API base)",
+                    "from_upstream": "never",
+                    "title": "Onedata Provider Url",
+                    "type": "string"
+                },
+                "onedata_token": {
+                    "description": "Onedata access token (X-Auth-Token) with read permissions for the target space",
+                    "from_upstream": "never",
+                    "title": "Onedata Token",
+                    "type": "string"
+                },
+                "onedata_file_id": {
+                    "default": "",
+                    "description": "Direct Onedata File ID of data_sampled.zip. Leave empty to resolve automatically from space_name / file_path.",
+                    "from_upstream": "never",
+                    "title": "Onedata File Id",
+                    "type": "string"
+                },
+                "onedata_space_name": {
+                    "default": "ConDistFL",
+                    "description": "Onedata space name used for path-based file lookup (ignored when file_id is set)",
+                    "from_upstream": "never",
+                    "title": "Onedata Space Name",
+                    "type": "string"
+                },
+                "onedata_file_path": {
+                    "default": "data_sampled.zip",
+                    "description": "Path to the zip file inside the Onedata space (ignored when file_id is set)",
+                    "from_upstream": "never",
+                    "title": "Onedata File Path",
+                    "type": "string"
+                },
+                "verify_ssl": {
+                    "default": false,
+                    "description": "Whether to verify SSL certificates when contacting the Onedata provider",
+                    "from_upstream": "never",
+                    "title": "Verify Ssl",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "onedata_token"
+            ],
+            "title": "InputModel",
+            "type": "object"
+        },
+        "output_schema": {
+            "description": "CondistFL Data Loader Output Model",
+            "properties": {
+                "kidney_data_path": {
+                    "description": "Path to kidney (KiTS19) dataset directory",
+                    "title": "Kidney Data Path",
+                    "type": "string"
+                },
+                "liver_data_path": {
+                    "description": "Path to liver dataset directory",
+                    "title": "Liver Data Path",
+                    "type": "string"
+                },
+                "pancreas_data_path": {
+                    "description": "Path to pancreas dataset directory",
+                    "title": "Pancreas Data Path",
+                    "type": "string"
+                },
+                "spleen_data_path": {
+                    "description": "Path to spleen dataset directory",
+                    "title": "Spleen Data Path",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Status message",
+                    "title": "Message",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "kidney_data_path",
+                "liver_data_path",
+                "pancreas_data_path",
+                "spleen_data_path",
+                "message"
+            ],
+            "title": "OutputModel",
+            "type": "object"
+        },
+        "secrets_schema": null
+    },
+    "CondistFLSplitDataPiece": {
+        "name": "CondistFLSplitDataPiece",
+        "dependency": {
+            "dockerfile": "Dockerfile_condistfl_data",
+            "requirements_file": null
+        },
+        "tags": [
+            "Data Processing",
+            "Cross Validation",
+            "Medical Imaging"
+        ],
+        "style": {
+            "node_label": "CondistFL Split Data",
+            "node_type": "default",
+            "node_style": {
+                "backgroundColor": "#50C878"
+            },
+            "useIcon": true,
+            "icon_class_name": "fas fa-random",
+            "iconStyle": {
+                "cursor": "pointer"
+            }
+        },
+        "container_resources": {
+            "cpu": 100,
+            "memory": "128Mi"
+        },
+        "description": "Splits multi-organ segmentation datasets into k-fold cross-validation sets for CondistFL federated training. Creates fold-specific datalist.json files with train/validation partitions.",
+        "source_url": "https://github.com/misohu/condistfl-monaidata-segmantation/tree/main/pieces/CondistFLSplitDataPiece",
+        "input_schema": {
+            "description": "CondistFL Split Data Input Model",
+            "properties": {
+                "kidney_data_path": {
+                    "description": "Path to kidney (KiTS19) dataset directory from DataLoader",
+                    "from_upstream": "always",
+                    "title": "Kidney Data Path",
+                    "type": "string"
+                },
+                "liver_data_path": {
+                    "description": "Path to liver dataset directory from DataLoader",
+                    "from_upstream": "always",
+                    "title": "Liver Data Path",
+                    "type": "string"
+                },
+                "pancreas_data_path": {
+                    "description": "Path to pancreas dataset directory from DataLoader",
+                    "from_upstream": "always",
+                    "title": "Pancreas Data Path",
+                    "type": "string"
+                },
+                "spleen_data_path": {
+                    "description": "Path to spleen dataset directory from DataLoader",
+                    "from_upstream": "always",
+                    "title": "Spleen Data Path",
+                    "type": "string"
+                },
+                "num_folds": {
+                    "default": 3,
+                    "description": "Number of cross-validation folds",
+                    "from_upstream": "never",
+                    "title": "Num Folds",
+                    "type": "integer"
+                },
+                "fold_index": {
+                    "default": 0,
+                    "description": "Which fold to use as validation (0-based index)",
+                    "from_upstream": "never",
+                    "title": "Fold Index",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "kidney_data_path",
+                "liver_data_path",
+                "pancreas_data_path",
+                "spleen_data_path"
+            ],
+            "title": "InputModel",
+            "type": "object"
+        },
+        "output_schema": {
+            "description": "CondistFL Split Data Output Model",
+            "properties": {
+                "data_root_kidney": {
+                    "description": "Path to fold-specific kidney dataset with datalist.json",
+                    "title": "Data Root Kidney",
+                    "type": "string"
+                },
+                "data_root_liver": {
+                    "description": "Path to fold-specific liver dataset with datalist.json",
+                    "title": "Data Root Liver",
+                    "type": "string"
+                },
+                "data_root_pancreas": {
+                    "description": "Path to fold-specific pancreas dataset with datalist.json",
+                    "title": "Data Root Pancreas",
+                    "type": "string"
+                },
+                "data_root_spleen": {
+                    "description": "Path to fold-specific spleen dataset with datalist.json",
+                    "title": "Data Root Spleen",
+                    "type": "string"
+                },
+                "fold_index": {
+                    "description": "The fold index used for validation",
+                    "title": "Fold Index",
+                    "type": "integer"
+                },
+                "num_folds": {
+                    "description": "Total number of folds",
+                    "title": "Num Folds",
+                    "type": "integer"
+                },
+                "message": {
+                    "description": "Status message",
+                    "title": "Message",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "data_root_kidney",
+                "data_root_liver",
+                "data_root_pancreas",
+                "data_root_spleen",
+                "fold_index",
+                "num_folds",
+                "message"
+            ],
+            "title": "OutputModel",
+            "type": "object"
+        },
+        "secrets_schema": null
+    }
+}
